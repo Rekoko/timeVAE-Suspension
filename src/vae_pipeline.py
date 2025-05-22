@@ -56,7 +56,7 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
     train_vae(
         vae=vae_model,
         train_data=scaled_train_data,
-        max_epochs=1000,
+        max_epochs=100,
         verbose=1,
     )
 
@@ -132,9 +132,10 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
 
 if __name__ == "__main__":
     # check `/data/` for available datasets
-    dataset = "sine_subsampled_train_perc_20"
+    dataset = "sample" \
+    "_classified_data"
 
     # models: vae_dense, vae_conv, timeVAE
-    model_name = "timeVAE"
+    model_name = "vae_conv"
 
     run_vae_pipeline(dataset, model_name)

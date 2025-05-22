@@ -52,7 +52,7 @@ def get_npz_data(input_file: str) -> np.ndarray:
         np.ndarray: The data array extracted from the .npz file.
     """
     loaded = np.load(input_file)
-    return loaded["data"]
+    return loaded["arr_0"]
 
 
 def split_data(

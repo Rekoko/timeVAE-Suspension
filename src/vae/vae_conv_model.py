@@ -13,6 +13,9 @@ from tensorflow.keras.layers import (
     Conv1DTranspose,
     Reshape,
     Input,
+    GlobalAvgPool1D,
+    Cropping1D,
+    ZeroPadding1D,
 )
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
@@ -43,13 +46,13 @@ class VariationalAutoencoderConv(BaseVariationalAutoencoder):
             x = Conv1D(
                 filters=num_filters,
                 kernel_size=3,
-                strides=2,
+                strides=1,
                 activation="relu",
                 padding="same",
                 name=f"enc_conv_{i}",
             )(x)
 
-        x = Flatten(name="enc_flatten")(x)
+        x = GlobalAvgPool1D(name="enc_flatten")(x)
 
         # save the dimensionality of this last dense layer before the hidden state layer. We need it in the decoder.
         self.encoder_last_dense_dim = x.shape[-1]
@@ -71,7 +74,10 @@ class VariationalAutoencoderConv(BaseVariationalAutoencoder):
 
         x = decoder_inputs
         x = Dense(self.encoder_last_dense_dim, name="dec_dense", activation="relu")(x)
-        x = Reshape(target_shape=(-1, self.hidden_layer_sizes[-1]), name="dec_reshape")(
+
+        inital_time_steps = 4
+        ### CREATE CHECK FOR TIME STEPS LEGIBILITY OR CALCULATE BEST VALUE
+        x = Reshape(target_shape=(inital_time_steps, int(self.hidden_layer_sizes[-1]/inital_time_steps)), name="dec_reshape")(
             x
         )
 
@@ -79,7 +85,7 @@ class VariationalAutoencoderConv(BaseVariationalAutoencoder):
             x = Conv1DTranspose(
                 filters=num_filters,
                 kernel_size=3,
-                strides=2,
+                strides=1,
                 padding="same",
                 activation="relu",
                 name=f"dec_deconv_{i}",
@@ -94,10 +100,11 @@ class VariationalAutoencoderConv(BaseVariationalAutoencoder):
             activation="relu",
             name=f"dec_deconv__{i+1}",
         )(x)
-
-        x = Flatten(name="dec_flatten")(x)
-        x = Dense(self.seq_len * self.feat_dim, name="decoder_dense_final")(x)
-        self.decoder_outputs = Reshape(target_shape=(self.seq_len, self.feat_dim))(x)
+        if x.shape[1] > self.seq_len:
+            x = Cropping1D(cropping=(0, x.shape[1] - self.seq_len))(x)
+        elif x.shape[1] < self.seq_len:
+            x = ZeroPadding1D(padding=(0, self.seq_len - x.shape[1]))(x)
+        self.decoder_outputs = x
         decoder = Model(decoder_inputs, self.decoder_outputs, name="decoder")
         return decoder
 

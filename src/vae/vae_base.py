@@ -33,6 +33,8 @@ class BaseVariationalAutoencoder(Model, ABC):
         seq_len,
         feat_dim,
         latent_dim,
+        warmup_epochs=60,
+        reconstruction_wt_bound=0.5,
         reconstruction_wt=3.0,
         batch_size=16,
         **kwargs,
@@ -41,7 +43,10 @@ class BaseVariationalAutoencoder(Model, ABC):
         self.seq_len = seq_len
         self.feat_dim = feat_dim
         self.latent_dim = latent_dim
-        self.reconstruction_wt = reconstruction_wt
+
+        self.warmup_epochs = warmup_epochs
+        self.max_weight = reconstruction_wt_bound
+        self.reconstruction_wt = tf.Variable(reconstruction_wt, trainable=False, dtype=tf.float32)
         self.batch_size = batch_size
         self.total_loss_tracker = Mean(name="total_loss")
         self.reconstruction_loss_tracker = Mean(name="reconstruction_loss")
@@ -55,13 +60,13 @@ class BaseVariationalAutoencoder(Model, ABC):
             monitor=loss_to_monitor, min_delta=1e-2, patience=50, mode="min"
         )
         reduce_lr = ReduceLROnPlateau(
-            monitor=loss_to_monitor, factor=0.5, patience=30, mode="min"
+            monitor=loss_to_monitor, factor=0.5, patience=30, mode="min", min_delta=0.01
         )
         self.fit(
             train_data,
             epochs=max_epochs,
             batch_size=self.batch_size,
-            callbacks=[early_stopping, reduce_lr],
+            callbacks=[early_stopping, reduce_lr, ReconstructionWeightScheduler(self.warmup_epochs, self.max_weight)],
             verbose=verbose,
         )
 
@@ -131,7 +136,7 @@ class BaseVariationalAutoencoder(Model, ABC):
             kl_loss = tf.reduce_sum(tf.reduce_sum(kl_loss, axis=1))
             # kl_loss = kl_loss / self.latent_dim
 
-            total_loss = self.reconstruction_wt * reconstruction_loss + kl_loss
+            total_loss = reconstruction_loss + kl_loss * self.reconstruction_wt
 
         grads = tape.gradient(total_loss, self.trainable_weights)
 
@@ -145,6 +150,7 @@ class BaseVariationalAutoencoder(Model, ABC):
             "loss": self.total_loss_tracker.result(),
             "reconstruction_loss": self.reconstruction_loss_tracker.result(),
             "kl_loss": self.kl_loss_tracker.result(),
+            "reconstruction_wt": self.reconstruction_wt,
         }
 
     def test_step(self, X):
@@ -204,6 +210,16 @@ class BaseVariationalAutoencoder(Model, ABC):
         params_file = os.path.join(model_dir, f"{self.model_name}_parameters.pkl")
         joblib.dump(dict_params, params_file)
 
+
+class ReconstructionWeightScheduler(tf.keras.callbacks.Callback):
+    def __init__(self, warmup_epochs, max_weight):
+        self.warmup_epochs = warmup_epochs
+        self.max_weight = max_weight
+
+    def on_epoch_begin(self, epoch, logs=None):
+        # Linear annealing
+        weight = min(self.model.reconstruction_wt_bound, (1+epoch) / self.warmup_epochs)
+        self.model.reconstruction_wt.assign(weight)
 
 #####################################################################################################
 #####################################################################################################

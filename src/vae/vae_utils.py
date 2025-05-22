@@ -67,6 +67,7 @@ def instantiate_vae_model(
             batch_size=batch_size,
             **kwargs,
         )
+        print(f"VAE_Conv model summary: {vae.summary()}")
     elif vae_type == "timeVAE":
         vae = TimeVAE(
             seq_len=sequence_length,

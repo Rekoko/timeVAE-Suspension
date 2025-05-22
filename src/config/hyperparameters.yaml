@@ -1,9 +1,9 @@
 timeVAE:
-  latent_dim: 8
+  latent_dim: 5
   hidden_layer_sizes:
-    - 50
-    - 100
-    - 200
+    - 16
+    - 32
+    - 64
   reconstruction_wt: 3.0
   batch_size: 16
   use_residual_conn: true
@@ -23,10 +23,11 @@ vae_dense:
   batch_size: 16
 
 vae_conv:
-  latent_dim: 8
+  latent_dim: 16
   hidden_layer_sizes:
-    - 50
-    - 100
-    - 200
-  reconstruction_wt: 3.0
+    - 24
+    - 48
+    - 96
+  reconstruction_wt: 1
+  reconstruction_wt_bound: 1
   batch_size: 16
