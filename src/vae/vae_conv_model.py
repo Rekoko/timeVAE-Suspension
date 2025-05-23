@@ -46,7 +46,7 @@ class VariationalAutoencoderConv(BaseVariationalAutoencoder):
             x = Conv1D(
                 filters=num_filters,
                 kernel_size=3,
-                strides=1,
+                strides=i+1,
                 activation="relu",
                 padding="same",
                 name=f"enc_conv_{i}",
@@ -72,12 +72,12 @@ class VariationalAutoencoderConv(BaseVariationalAutoencoder):
     def _get_decoder(self):
         decoder_inputs = Input(shape=(self.latent_dim,), name="decoder_input")
 
+        inital_time_steps = 5
         x = decoder_inputs
-        x = Dense(self.encoder_last_dense_dim, name="dec_dense", activation="relu")(x)
+        x = Dense(self.encoder_last_dense_dim * inital_time_steps, name="dec_dense", activation="relu")(x)
 
-        inital_time_steps = 4
-        ### CREATE CHECK FOR TIME STEPS LEGIBILITY OR CALCULATE BEST VALUE
-        x = Reshape(target_shape=(inital_time_steps, int(self.hidden_layer_sizes[-1]/inital_time_steps)), name="dec_reshape")(
+        ### CREATE CHECK FOR TIME STEPS LEGIBILITY OR CALCULATE BEST VALUE | ALSO CARE FOR SELF-encoder last dense dim to be correct (???)
+        x = Reshape(target_shape=(inital_time_steps, self.encoder_last_dense_dim), name="dec_reshape")(
             x
         )
 
@@ -85,7 +85,7 @@ class VariationalAutoencoderConv(BaseVariationalAutoencoder):
             x = Conv1DTranspose(
                 filters=num_filters,
                 kernel_size=3,
-                strides=1,
+                strides=i+1,
                 padding="same",
                 activation="relu",
                 name=f"dec_deconv_{i}",

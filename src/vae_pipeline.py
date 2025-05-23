@@ -41,7 +41,8 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
     # Instantiate and train the VAE Model
 
     # load hyperparameters from yaml file
-    hyperparameters = load_yaml_file(paths.HYPERPARAMETERS_FILE_PATH)[vae_type]
+    config = load_yaml_file(paths.HYPERPARAMETERS_FILE_PATH)
+    hyperparameters = config[vae_type]
 
     # instantiate the model
     _, sequence_length, feature_dim = scaled_train_data.shape
@@ -56,7 +57,7 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
     train_vae(
         vae=vae_model,
         train_data=scaled_train_data,
-        max_epochs=100,
+        max_epochs=config["max_epochs"],
         verbose=1,
     )
 

@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import tensorflow as tf
 import joblib
+import pickle
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.metrics import Mean
@@ -62,13 +63,15 @@ class BaseVariationalAutoencoder(Model, ABC):
         reduce_lr = ReduceLROnPlateau(
             monitor=loss_to_monitor, factor=0.5, patience=30, mode="min", min_delta=0.01
         )
-        self.fit(
+        history = self.fit(
             train_data,
             epochs=max_epochs,
             batch_size=self.batch_size,
             callbacks=[early_stopping, reduce_lr, ReconstructionWeightScheduler(self.warmup_epochs, self.max_weight)],
             verbose=verbose,
         )
+        with open("trainingHistory.pkl", "wb") as f:
+            pickle.dump(history.history, f)
 
     def call(self, X):
         z_mean, _, _ = self.encoder(X)
@@ -218,7 +221,7 @@ class ReconstructionWeightScheduler(tf.keras.callbacks.Callback):
 
     def on_epoch_begin(self, epoch, logs=None):
         # Linear annealing
-        weight = min(self.model.reconstruction_wt_bound, (1+epoch) / self.warmup_epochs)
+        weight = min(self.model.max_weight, self.model.max_weight * ((1+epoch) / self.warmup_epochs))
         self.model.reconstruction_wt.assign(weight)
 
 #####################################################################################################
