@@ -32,4 +32,5 @@ vae_conv:
   reconstruction_wt_bound: 0.2
   batch_size: 16
 
-max_epochs: 20
+common:
+  max_epochs: 20

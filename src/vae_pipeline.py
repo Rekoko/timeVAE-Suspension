@@ -1,7 +1,8 @@
 import os, warnings
 import numpy as np
 import time
-
+import pandas as pd
+from model_saving import append_row_to_csv
 
 from data_utils import (
     load_yaml_file,
@@ -57,17 +58,37 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
     train_vae(
         vae=vae_model,
         train_data=scaled_train_data,
-        max_epochs=config["max_epochs"],
+        max_epochs=config["common"]["max_epochs"],
         verbose=1,
     )
 
     # ----------------------------------------------------------------------------------
     # Save scaler and model
-    model_save_dir = os.path.join(paths.MODELS_DIR, dataset_name)
+    model_id = f"{vae_type}_{dataset_name}_{int(time.time())}"
+    model_save_dir = os.path.join(paths.MODELS_DIR, dataset_name, model_id)
     # save scaler
     save_scaler(scaler=scaler, dir_path=model_save_dir)
     # Save vae
     save_vae_model(vae=vae_model, dir_path=model_save_dir)
+    # Add model with parameters to the model list
+    model_params = {
+        "model_id": model_id,
+        "model_type": vae_type,
+        "model_dir": model_save_dir,
+        "dataset_name": dataset_name,
+        "date": time.strftime("%Y-%m-%d"),
+        }
+    
+    for key, value in hyperparameters.items():
+        if isinstance(value, list):
+            model_params[key] = [value]
+        else:
+            model_params[key] = value
+    for key, value in config["common"].items():
+        model_params[key] = value
+    
+    current_model = pd.DataFrame(model_params, index=[0])
+    append_row_to_csv(current_model, paths.MODEL_LIST_PATH)
 
     # ----------------------------------------------------------------------------------
     # Visualize posterior samples

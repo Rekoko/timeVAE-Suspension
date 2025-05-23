@@ -15,6 +15,7 @@ SRC_DIR = os.path.join(ROOT_DIR, "src")
 CONFIG_DIR = os.path.join(SRC_DIR, "config")
 CFG_FILE_PATH = os.path.join(CONFIG_DIR, "config.yaml")
 HYPERPARAMETERS_FILE_PATH = os.path.join(CONFIG_DIR, "hyperparameters.yaml")
+MODEL_LIST_PATH = os.path.join(OUTPUTS_DIR, "model_list.csv")
 
 
 # MODEL ARTIFACTS
