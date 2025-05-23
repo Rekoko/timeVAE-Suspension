@@ -74,7 +74,6 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
     model_params = {
         "model_id": model_id,
         "model_type": vae_type,
-        "model_dir": model_save_dir,
         "dataset_name": dataset_name,
         "date": time.strftime("%Y-%m-%d"),
         }
