@@ -13,6 +13,7 @@ ENV/
 env.bak/
 venv.bak/
 vae310/
+venvVAE/
 
 # Jupyter Notebook
 **/.ipynb_checkpoints/
