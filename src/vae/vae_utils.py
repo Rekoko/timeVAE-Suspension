@@ -33,7 +33,7 @@ def set_seeds(seed: int = 111) -> None:
 
 
 def instantiate_vae_model(
-    vae_type: str, sequence_length: int, feature_dim: int, batch_size: int, **kwargs
+    model_id: str, vae_type: str, sequence_length: int, feature_dim: int, batch_size: int, **kwargs
 ) -> Union[VAE_Dense, VAE_Conv, TimeVAE]:
     """
     Instantiate a Variational Autoencoder (VAE) model based on the specified type.
@@ -55,6 +55,7 @@ def instantiate_vae_model(
 
     if vae_type == "vae_dense":
         vae = VAE_Dense(
+            model_id=model_id,
             seq_len=sequence_length,
             feat_dim=feature_dim,
             batch_size=batch_size,
@@ -62,6 +63,7 @@ def instantiate_vae_model(
         )
     elif vae_type == "vae_conv":
         vae = VAE_Conv(
+            model_id=model_id,
             seq_len=sequence_length,
             feat_dim=feature_dim,
             batch_size=batch_size,
@@ -70,6 +72,7 @@ def instantiate_vae_model(
         print(f"VAE_Conv model summary: {vae.summary()}")
     elif vae_type == "timeVAE":
         vae = TimeVAE(
+            model_id=model_id,
             seq_len=sequence_length,
             feat_dim=feature_dim,
             batch_size=batch_size,

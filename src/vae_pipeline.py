@@ -40,6 +40,8 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
 
     # ----------------------------------------------------------------------------------
     # Instantiate and train the VAE Model
+    model_id = f"{vae_type}_{dataset_name}_{int(time.time())}"
+
 
     # load hyperparameters from yaml file
     config = load_yaml_file(paths.HYPERPARAMETERS_FILE_PATH)
@@ -48,6 +50,7 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
     # instantiate the model
     _, sequence_length, feature_dim = scaled_train_data.shape
     vae_model = instantiate_vae_model(
+        model_id=model_id,
         vae_type=vae_type,
         sequence_length=sequence_length,
         feature_dim=feature_dim,
@@ -64,7 +67,6 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
 
     # ----------------------------------------------------------------------------------
     # Save scaler and model
-    model_id = f"{vae_type}_{dataset_name}_{int(time.time())}"
     model_save_dir = os.path.join(paths.MODELS_DIR, dataset_name, model_id)
     # save scaler
     save_scaler(scaler=scaler, dir_path=model_save_dir)
@@ -118,7 +120,7 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
         samples2=prior_samples,
         samples2_name="Generated (Prior)",
         scenario_name=f"Model-{vae_type} Dataset-{dataset_name}",
-        save_dir=os.path.join(paths.TSNE_DIR, dataset_name),
+        save_dir=os.path.join(paths.TSNE_DIR, dataset_name, model_id),
         max_samples=2000,
     )
 
@@ -153,8 +155,7 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
 
 if __name__ == "__main__":
     # check `/data/` for available datasets
-    dataset = "sample" \
-    "_classified_data"
+    dataset = "jerkEvents_20"
 
     # models: vae_dense, vae_conv, timeVAE
     model_name = "vae_conv"

@@ -34,7 +34,8 @@ class BaseVariationalAutoencoder(Model, ABC):
         seq_len,
         feat_dim,
         latent_dim,
-        warmup_epochs=60,
+        model_id,
+        warmup_epochs=200,
         reconstruction_wt_bound=0.5,
         reconstruction_wt=3.0,
         batch_size=16,
@@ -44,6 +45,7 @@ class BaseVariationalAutoencoder(Model, ABC):
         self.seq_len = seq_len
         self.feat_dim = feat_dim
         self.latent_dim = latent_dim
+        self.model_id = model_id
 
         self.warmup_epochs = warmup_epochs
         self.max_weight = reconstruction_wt_bound
@@ -70,7 +72,7 @@ class BaseVariationalAutoencoder(Model, ABC):
             callbacks=[early_stopping, reduce_lr, ReconstructionWeightScheduler(self.warmup_epochs, self.max_weight)],
             verbose=verbose,
         )
-        with open("trainingHistory.pkl", "wb") as f:
+        with open(f"{self.model_id}_trainingHistory.pkl", "wb") as f:
             pickle.dump(history.history, f)
 
     def call(self, X):
@@ -165,7 +167,7 @@ class BaseVariationalAutoencoder(Model, ABC):
         kl_loss = tf.reduce_sum(tf.reduce_sum(kl_loss, axis=1))
         # kl_loss = kl_loss / self.latent_dim
 
-        total_loss = self.reconstruction_wt * reconstruction_loss + kl_loss
+        total_loss =  reconstruction_loss + self.reconstruction_wt * kl_loss
 
         self.total_loss_tracker.update_state(total_loss)
         self.reconstruction_loss_tracker.update_state(reconstruction_loss)
@@ -209,6 +211,7 @@ class BaseVariationalAutoencoder(Model, ABC):
             "latent_dim": self.latent_dim,
             "reconstruction_wt": self.reconstruction_wt,
             "hidden_layer_sizes": list(self.hidden_layer_sizes),
+            "model_id": self.model_id,
         }
         params_file = os.path.join(model_dir, f"{self.model_name}_parameters.pkl")
         joblib.dump(dict_params, params_file)
