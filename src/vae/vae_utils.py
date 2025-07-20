@@ -13,6 +13,7 @@ import tensorflow as tf
 from vae.vae_dense_model import VariationalAutoencoderDense as VAE_Dense
 from vae.vae_conv_model import VariationalAutoencoderConv as VAE_Conv
 from vae.timevae import TimeVAE
+from vae.vae_lstm_model import VariationalAutoencoderLSTM as VAE_LSTM
 
 
 def set_seeds(seed: int = 111) -> None:
@@ -78,6 +79,14 @@ def instantiate_vae_model(
             batch_size=batch_size,
             **kwargs,
         )
+    elif vae_type =="vae_lstm":
+        vae = VAE_LSTM(
+            model_id=model_id,
+            seq_len=sequence_length,
+            feat_dim=feature_dim,
+            batch_size=batch_size,
+            **kwargs,
+        )
     else:
         raise ValueError(
             f"Unrecognized model type [{vae_type}]. "
@@ -100,7 +109,7 @@ def train_vae(vae, train_data, max_epochs, verbose=0):
                                     Defaults to 100.
         verbose (int, optional): Verbose arg for keras model.fit()
     """
-    vae.fit_on_data(train_data, max_epochs, verbose)
+    return vae.fit_on_data(train_data, max_epochs, verbose)
 
 
 def save_vae_model(vae, dir_path: str) -> None:
@@ -132,6 +141,8 @@ def load_vae_model(vae_type: str, dir_path: str) -> Union[VAE_Dense, VAE_Conv, T
         vae = VAE_Conv.load(dir_path)
     elif vae_type == "timeVAE":
         vae = TimeVAE.load(dir_path)
+    elif vae_type == "vae_lstm":
+        vae = VAE_LSTM.load(dir_path)
     else:
         raise ValueError(
             f"Unrecognized model type [{vae_type}]. "

@@ -16,7 +16,7 @@ CONFIG_DIR = os.path.join(SRC_DIR, "config")
 CFG_FILE_PATH = os.path.join(CONFIG_DIR, "config.yaml")
 HYPERPARAMETERS_FILE_PATH = os.path.join(CONFIG_DIR, "hyperparameters.yaml")
 MODEL_LIST_PATH = os.path.join(OUTPUTS_DIR, "model_list.csv")
-
+TUNE_CONFIGS_PATH = os.path.join(CONFIG_DIR, "tune_configs", "hyperparameters.yaml")
 
 # MODEL ARTIFACTS
 SCALER_FILE_PATH = os.path.join(MODELS_DIR, "scaler.pkl")

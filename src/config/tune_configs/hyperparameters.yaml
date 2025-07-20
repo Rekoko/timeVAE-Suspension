@@ -1,0 +1,13 @@
+vae_conv:
+  latent_dim: [32, 64]
+  hidden_layer_sizes:
+    - [48, 96, 192]
+    - [64, 128, 256]
+    - [16, 32, 64]
+  reconstruction_wt: [0.5, 1]
+  reconstruction_wt_bound: [0.1, 0.5]
+  warmup_epochs: [100, 1000] # Can be treated like increase rate for wt
+  batch_size: [16]
+
+common:
+  max_epochs: 100

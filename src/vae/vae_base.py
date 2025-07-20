@@ -75,6 +75,8 @@ class BaseVariationalAutoencoder(Model, ABC):
         with open(f"{self.model_id}_trainingHistory.pkl", "wb") as f:
             pickle.dump(history.history, f)
 
+        return history
+
     def call(self, X):
         z_mean, _, _ = self.encoder(X)
         x_decoded = self.decoder(z_mean)

@@ -158,6 +158,6 @@ if __name__ == "__main__":
     dataset = "jerkEvents_20"
 
     # models: vae_dense, vae_conv, timeVAE
-    model_name = "vae_conv"
+    model_name = "vae_lstm"
 
     run_vae_pipeline(dataset, model_name)
