@@ -229,12 +229,12 @@ class ReconstructionWeightScheduler(tf.keras.callbacks.Callback):
     def on_epoch_begin(self, epoch, logs=None):
         # Linear annealing
         if epoch < self.warmup_epochs:
-		weight = 0
-	else:
-		weight = min(self.model.max_weight, self.model.max_weight * ((1+epoch) / self.annealing_rate))
-        self.model.reconstruction_wt.assign(weight)
+            weight = 0
+        else:
+            weight = min(self.model.max_weight, self.model.max_weight * ((1+epoch) / self.annealing_rate))
+            self.model.reconstruction_wt.assign(weight)
 
-#####################################################################################################
+    #####################################################################################################
 #####################################################################################################
 
 
