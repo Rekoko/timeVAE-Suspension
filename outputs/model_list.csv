@@ -1,2 +1,3 @@
-model_type,latent_dim,model_id,reconstruction_wt,reconstruction_wt_bound,dataset_name,date,batch_size,max_epochs,hidden_layer_sizes,model_dir
-vae_conv,16,vae_conv_sample_classified_data_1748011747,1,0.2,sample_classified_data,2025-05-23,16,20,"[24, 48, 96]",C:\Users\biberd\Documents\SurfaceEvents\Story 9999\timeVAE\outputs\models\sample_classified_data\vae_conv_sample_classified_data_1748011747
+model_type,latent_dim,model_id,reconstruction_wt,reconstruction_wt_bound,dataset_name,date,batch_size,max_epochs,hidden_layer_sizes,model_dir,warmup_epochs
+vae_lstm,64,vae_lstm_jerkEvents_20_1753049843,1,0.2,jerkEvents_20,2025-07-21,16,1000,"[48, 96, 192]",,100000
+vae_conv,16,vae_conv_sample_classified_data_1748011747,1,0.2,sample_classified_data,2025-05-23,16,20,"[24, 48, 96]",C:\Users\biberd\Documents\SurfaceEvents\Story 9999\timeVAE\outputs\models\sample_classified_data\vae_conv_sample_classified_data_1748011747,

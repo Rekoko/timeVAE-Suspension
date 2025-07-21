@@ -36,6 +36,7 @@ class BaseVariationalAutoencoder(Model, ABC):
         latent_dim,
         model_id,
         warmup_epochs=200,
+        annealing_rate=400,
         reconstruction_wt_bound=0.5,
         reconstruction_wt=3.0,
         batch_size=16,
@@ -47,6 +48,7 @@ class BaseVariationalAutoencoder(Model, ABC):
         self.latent_dim = latent_dim
         self.model_id = model_id
 
+        self.annealing_rate=annealing_rate
         self.warmup_epochs = warmup_epochs
         self.max_weight = reconstruction_wt_bound
         self.reconstruction_wt = tf.Variable(reconstruction_wt, trainable=False, dtype=tf.float32)
@@ -226,7 +228,10 @@ class ReconstructionWeightScheduler(tf.keras.callbacks.Callback):
 
     def on_epoch_begin(self, epoch, logs=None):
         # Linear annealing
-        weight = min(self.model.max_weight, self.model.max_weight * ((1+epoch) / self.warmup_epochs))
+        if epoch < self.warmup_epochs:
+		weight = 0
+	else:
+		weight = min(self.model.max_weight, self.model.max_weight * ((1+epoch) / self.annealing_rate))
         self.model.reconstruction_wt.assign(weight)
 
 #####################################################################################################
