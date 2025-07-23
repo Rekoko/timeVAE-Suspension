@@ -71,7 +71,7 @@ class BaseVariationalAutoencoder(Model, ABC):
             train_data,
             epochs=max_epochs,
             batch_size=self.batch_size,
-            callbacks=[early_stopping, reduce_lr, ReconstructionWeightScheduler(self.warmup_epochs, self.max_weight)],
+            callbacks=[early_stopping, reduce_lr, ReconstructionWeightScheduler(self.warmup_epochs, self.max_weight, self.annealing_rate)],
             verbose=verbose,
         )
         with open(f"{self.model_id}_trainingHistory.pkl", "wb") as f:
@@ -222,9 +222,10 @@ class BaseVariationalAutoencoder(Model, ABC):
 
 
 class ReconstructionWeightScheduler(tf.keras.callbacks.Callback):
-    def __init__(self, warmup_epochs, max_weight):
+    def __init__(self, warmup_epochs, max_weight, annealing_rate):
         self.warmup_epochs = warmup_epochs
         self.max_weight = max_weight
+        self.annealing_rate = annealing_rate
 
     def on_epoch_begin(self, epoch, logs=None):
         # Linear annealing
