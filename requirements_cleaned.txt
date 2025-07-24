@@ -77,7 +77,6 @@ PyQt5==5.15.10
 PyQtWebEngine==5.15.6
 python-dateutil==2.9.0.post0
 pytz==2025.2
-pywin32==306
 PyYAML==6.0.1
 pyzmq==26.1.0
 qdldl==0.1.7.post5
