@@ -47,7 +47,6 @@ MarkupSafe==3.0.2
 matplotlib==3.10.3
 matplotlib-inline==0.1.7
 mdurl==0.1.2
-mkl-service==2.4.0
 ml_dtypes==0.5.1
 more-itertools==10.3.0
 namex==0.0.8
