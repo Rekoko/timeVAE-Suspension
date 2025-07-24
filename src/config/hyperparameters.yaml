@@ -44,7 +44,18 @@ vae_lstm:
   reconstruction_wt: 1
   reconstruction_wt_bound: 0.2
   batch_size: 16
-  warmup_epochs: 1000 # Can be treated like increase rate for wt
+  warmup_epochs: 200 # Can be treated like increase rate for wt
+
+vae_POC:
+  latent_dim: 64
+  hidden_layer_sizes:
+    - 48
+    - 96
+    - 192
+  reconstruction_wt: 1
+  reconstruction_wt_bound: 0.2
+  batch_size: 16
+  warmup_epochs: 50 # Can be treated like increase rate for wt
 
 
 common:

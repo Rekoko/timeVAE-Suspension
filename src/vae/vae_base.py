@@ -142,12 +142,13 @@ class BaseVariationalAutoencoder(Model, ABC):
             kl_loss = -0.5 * (1 + z_log_var - tf.square(z_mean) - tf.exp(z_log_var))
             kl_loss = tf.reduce_sum(tf.reduce_sum(kl_loss, axis=1))
             # kl_loss = kl_loss / self.latent_dim
-
             total_loss = reconstruction_loss + kl_loss * self.reconstruction_wt
 
         grads = tape.gradient(total_loss, self.trainable_weights)
 
-        self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
+        clipped_grads, _ = tf.clip_by_global_norm(grads, clip_norm=1.0) # Added gradient clipping for testing
+
+        self.optimizer.apply_gradients(zip(clipped_grads, self.trainable_weights))
 
         self.total_loss_tracker.update_state(total_loss)
         self.reconstruction_loss_tracker.update_state(reconstruction_loss)
@@ -222,11 +223,15 @@ class BaseVariationalAutoencoder(Model, ABC):
 class ReconstructionWeightScheduler(tf.keras.callbacks.Callback):
     def __init__(self, warmup_epochs, max_weight):
         self.warmup_epochs = warmup_epochs
+        self.annealing_rate = 1000000
         self.max_weight = max_weight
 
     def on_epoch_begin(self, epoch, logs=None):
         # Linear annealing
-        weight = min(self.model.max_weight, self.model.max_weight * ((1+epoch) / self.warmup_epochs))
+        if epoch >= self.warmup_epochs:
+            weight = min(self.model.max_weight, self.model.max_weight * ((1+epoch) / (self.annealing_rate)))
+        else:
+            weight = 0
         self.model.reconstruction_wt.assign(weight)
 
 #####################################################################################################

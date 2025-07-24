@@ -82,7 +82,8 @@ class VariationalAutoencoderLSTM(BaseVariationalAutoencoder):
 
     @classmethod
     def load(cls, model_dir) -> "VariationalAutoencoderConv":
-        params_file = os.path.join(model_dir, f"{cls.model_name}_parameters.pkl")
+        params_file = [path for path in os.listdir(model_dir) if path.endswith("_parameters.pkl")]
+        params_file = params_file[0]
         dict_params = joblib.load(params_file)
         vae_model = VariationalAutoencoderLSTM(**dict_params)
         vae_model.load_weights(model_dir)
