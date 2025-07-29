@@ -48,4 +48,4 @@ vae_lstm:
 
 
 common:
-  max_epochs: 10000
+  max_epochs: 800
