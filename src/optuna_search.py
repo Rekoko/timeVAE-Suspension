@@ -99,7 +99,8 @@ def objective(trial):
     original_scores, prior_scores = compute_catch_22_scores(original_data, prior_data)
     wasserstein_distance = compute_avg_wasserstein(prior_scores, original_scores)
     
-    return wasserstein_distance
+    average_distance = wasserstein_distance["average_distance"]
+    return average_distance
 
 import optuna
 import os
