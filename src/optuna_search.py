@@ -46,13 +46,13 @@ def run_vae_pipeline(dataset_name: str, vae_type: str):
     )
 
 def objective(trial):
-    feature_dim = trial.suggest_ing('z_dim', 8, 64, step=8)
+    latent_dim = trial.suggest_int('z_dim', 8, 64, step=8)
     bidirectional = trial.suggest_categorical('bidirectional', [True, False])
     units = trial.suggest_int('units', 32, 128, step=16)
     warumup_epochs = trial.suggest_int('warmup_epochs', 50, 200, step=50)
     max_epochs = trial.suggest_int('max_epochs', 500, 1000, step=250)
 
-    hyperparameters = {'latent_dim': feature_dim,
+    hyperparameters = {'latent_dim': latent_dim,
                     'bidirectional': bidirectional,
                     'units': units,
                     'hidden_layer_sizes': [48, 96, 192],
@@ -65,7 +65,9 @@ def objective(trial):
     vae_type = "vae_lstm"
     dataset_name = "jerkEventSubset_20"
     sequence_length = 20
+    feature_dim = 1
 
+    print(hyperparameters)
 
 
     model_id = f"{vae_type}_{dataset_name}_{int(time.time())}"
@@ -100,5 +102,38 @@ def objective(trial):
     
     return wasserstein_distance
 
-study = optuna.create_study(direction="minimize")
+import optuna
+import os
+
+# --- CONFIGURATION ---
+STUDY_NAME = "vae_hyperopt_study"
+STORAGE_PATH = "sqlite:///vae_hyperopt_study.db"
+
+# Optional: ensure you're not duplicating studies
+if os.path.exists("vae_hyperopt_study.db"):
+    print(f"📂 Loading existing study '{STUDY_NAME}' from file.")
+    study = optuna.load_study(study_name=STUDY_NAME, storage=STORAGE_PATH)
+else:
+    print(f"🆕 Creating new study '{STUDY_NAME}'...")
+    study = optuna.create_study(
+        direction="minimize",
+        study_name=STUDY_NAME,
+        storage=STORAGE_PATH,
+        load_if_exists=True,
+    )
+
+# --- OPTIMIZATION LOOP ---
 study.optimize(objective, n_trials=50)
+
+# --- OPTIONAL: SAVE BEST PARAMS OR LOG ---
+best_params = study.best_params
+print("✅ Best Parameters:", best_params)
+
+# Save best trial manually to a JSON file
+import json
+with open("best_trial.json", "w") as f:
+    json.dump({
+        "params": best_params,
+        "value": study.best_value,
+        "trial_number": study.best_trial.number
+    }, f, indent=2)

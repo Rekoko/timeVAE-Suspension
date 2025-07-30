@@ -28,12 +28,13 @@ class VariationalAutoencoderLSTM(BaseVariationalAutoencoder):
     model_name = "VAE_LSTM"
 
     def __init__(self, hidden_layer_sizes, **kwargs):
+        self.bidirectional = kwargs.pop('bidirectional', False)
+        self.units = kwargs.pop('units', 64)
+
         super(VariationalAutoencoderLSTM, self).__init__(**kwargs)
 
-        self.bidirectional = kwargs.get('bidirectional', False)
         self.max_epochs = kwargs.get('max_epochs', 10)
         self.warmup_epochs = kwargs.get('warmup_epochs', 50)
-        self.units = kwargs.get('units', 64)
 
         if hidden_layer_sizes is None:
             hidden_layer_sizes = [50, 100, 200]
@@ -50,9 +51,9 @@ class VariationalAutoencoderLSTM(BaseVariationalAutoencoder):
         x = encoder_inputs
         
         if self.bidirectional:
-            x = Bidirectional(LSTM(self.units, return_sequences=True), name="bidirectional_lstm")(x)
+            x = Bidirectional(LSTM(self.units, return_sequences=False), name="bidirectional_lstm")(x)
         else:
-            x = LSTM(self.units, return_sequences=True, name="lstm")(x)
+            x = LSTM(self.units, return_sequences=False, name="lstm")(x)
 
         # save the dimensionality of this last dense layer before the hidden state layer. We need it in the decoder.
         self.encoder_last_dense_dim = x.shape[-1]
