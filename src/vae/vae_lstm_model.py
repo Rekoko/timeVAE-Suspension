@@ -30,6 +30,11 @@ class VariationalAutoencoderLSTM(BaseVariationalAutoencoder):
     def __init__(self, hidden_layer_sizes, **kwargs):
         super(VariationalAutoencoderLSTM, self).__init__(**kwargs)
 
+        self.bidirectional = kwargs.get('bidirectional', False)
+        self.max_epochs = kwargs.get('max_epochs', 10)
+        self.warmup_epochs = kwargs.get('warmup_epochs', 50)
+        self.units = kwargs.get('units', 64)
+
         if hidden_layer_sizes is None:
             hidden_layer_sizes = [50, 100, 200]
 
@@ -44,7 +49,11 @@ class VariationalAutoencoderLSTM(BaseVariationalAutoencoder):
         )
         x = encoder_inputs
         
-        x = Bidirectional(LSTM(64, return_sequences=False), name="bidirectional_lstm")(x)
+        if self.bidirectional:
+            x = Bidirectional(LSTM(self.units, return_sequences=True), name="bidirectional_lstm")(x)
+        else:
+            x = LSTM(self.units, return_sequences=True, name="lstm")(x)
+
         # save the dimensionality of this last dense layer before the hidden state layer. We need it in the decoder.
         self.encoder_last_dense_dim = x.shape[-1]
 
@@ -82,7 +91,10 @@ class VariationalAutoencoderLSTM(BaseVariationalAutoencoder):
 
     @classmethod
     def load(cls, model_dir) -> "VariationalAutoencoderConv":
-        params_file = os.path.join(model_dir, f"{cls.model_name}_parameters.pkl")
+        params_file = [path for path in os.listdir(model_dir) if path.endswith("_parameters.pkl")]
+        params_file = params_file[0]
+        params_file = os.path.join(model_dir, params_file)
+
         dict_params = joblib.load(params_file)
         vae_model = VariationalAutoencoderLSTM(**dict_params)
         vae_model.load_weights(model_dir)
