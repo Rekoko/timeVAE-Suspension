@@ -37,8 +37,8 @@ def compute_catch_22_scores(real_array, fake_array):
     """
     Computes generation features from the catch22 library
     """
-    real_scores = [pycatch22.catch22_all(ts) for ts in real_array]
-    fake_scores = [pycatch22.catch22_all(ts) for ts in fake_array]
+    real_scores = np.array([pycatch22.catch22_all(ts)["values"] for ts in real_array])
+    fake_scores = np.array([pycatch22.catch22_all(ts)["values"] for ts in fake_array])
 
     indices_to_drop = [7, 8, 9, 12, 16, 17, 21] # Indices that are classification focused
 

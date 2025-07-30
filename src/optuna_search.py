@@ -50,7 +50,7 @@ def objective(trial):
     bidirectional = trial.suggest_categorical('bidirectional', [True, False])
     units = trial.suggest_int('units', 32, 128, step=16)
     warumup_epochs = trial.suggest_int('warmup_epochs', 50, 200, step=50)
-    max_epochs = trial.suggest_int('max_epochs', 500, 1000, step=250)
+    max_epochs = trial.suggest_int('max_epochs', 200, 300, step=50)
 
     hyperparameters = {'latent_dim': latent_dim,
                     'bidirectional': bidirectional,
@@ -96,8 +96,7 @@ def objective(trial):
     prior_data = vae_model.get_prior_samples(1000)
     original_data = scaled_train_data[:1000]
 
-    prior_scores = compute_catch_22_scores(prior_data)
-    original_scores = compute_catch_22_scores(original_data)
+    original_scores, prior_scores = compute_catch_22_scores(original_data, prior_data)
     wasserstein_distance = compute_avg_wasserstein(prior_scores, original_scores)
     
     return wasserstein_distance
