@@ -1,14 +1,20 @@
 import optuna
 import os
 from tabulate import tabulate
+import argparse
 
 # === CONFIGURATION ===
 history_path = "D:/Studiumj/Master Thesis/Data/Histories/"
 DB_NAME = "vae_hyperopt_study_1.db"
-DB_PATH = os.path.join(history_path, DB_NAME)
+# DB_PATH = os.path.join(history_path, DB_NAME)
 STUDY_NAME = "optuna_study"  # Replace with your actual study name
 ORDER_BY = "value"  # or "number"
 
+
+parser = argparse.ArgumentParser(description="Inspect Optuna study in a SQLite .db file")
+parser.add_argument("db_path", type=str, help="Path to the Optuna SQLite database (.db)")
+args = parser.parse_args()
+DB_PATH = os.path.abspath(args.db_path)
 
 
 # === Load Study ===
