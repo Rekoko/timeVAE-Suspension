@@ -4,6 +4,8 @@ import time
 from vae.vae_utils import instantiate_vae_model, train_vae
 import optuna
 from metric_script import compute_catch_22_scores, compute_avg_wasserstein
+from vae.vae_utils import save_vae_model
+import json
 
 def run_vae_pipeline(dataset_name: str, vae_type: str):
     # ----------------------------------------------------------------------------------
@@ -100,6 +102,27 @@ def objective(trial):
     wasserstein_distance = compute_avg_wasserstein(prior_scores, original_scores)
     
     average_distance = wasserstein_distance["average_distance"]
+
+    model_save_dir = os.path.join(paths.MODELS_DIR, dataset_name, model_id)
+    save_vae_model(vae=vae_model, dir_path=model_save_dir)
+    # Add model with parameters to the model list
+    model_params = {
+        "model_id": model_id,
+        "model_type": vae_type,
+        "dataset_name": dataset_name,
+        "date": time.strftime("%Y-%m-%d"),
+        }
+    
+    for key, value in hyperparameters.items():
+        if isinstance(value, list):
+            model_params[key] = [value]
+        else:
+            model_params[key] = value
+    model_params["max_epochs"] = max_epochs
+    
+    with open(os.path.join(model_save_dir, model_id+".json"), "w") as f:
+        json.dump(model_params, f)
+
     return average_distance
 
 import optuna
